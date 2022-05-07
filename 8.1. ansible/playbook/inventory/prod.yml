@@ -1,17 +1,34 @@
+#---
+#  el:
+#    hosts:
+#      centos7:
+#        ansible_connection: docker
+#  deb:
+#    hosts:
+#      ubuntu:
+#        ansible_connection: docker
+#  local:
+#    hosts:
+#      localhost:
+#        ansible_connection: local
+#  fed:
+#    hosts:
+#      fedora:
+#        ansible_connection: docker
+
 ---
-  el:
-    hosts:
-      centos7:
-        ansible_connection: docker
-  deb:
-    hosts:
-      ubuntu:
-        ansible_connection: docker
-  local:
-    hosts:
-      localhost:
-        ansible_connection: local
-  fed:
-    hosts:
-      fedora:
-        ansible_connection: docker
+clickhouse:
+  hosts:
+    clickhouse-01:
+      ansible_host: 51.250.78.120
+      become_user: root
+      remote_user: centos
+      ansible-user: centos
+
+vector:
+  hosts:
+    vector-01:
+      ansible_host: 51.250.69.87
+      become_user: root
+      remote_user: centos
+      ansible-user: centos
