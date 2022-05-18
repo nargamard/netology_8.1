@@ -53,3 +53,37 @@ ansible.builtin.command запускает команду "clickhouse-client -q 
 ```text
 "Start vector service", запускает сервис vector (чтобы это было позволено, включаем become).
 ```
+
+###PLAY "Install Lighthouse"
+Пре-таски:
+- Install unzip
+```text
+Устанавливает unzip, который понадобится для распаковки архива с lighthouse
+```
+Таски:
+- Add repo Nginx
+```text
+Добавляет официальный репозиторий nginx, become включен для этой операции
+```
+- Install Nginx
+```text
+Устанавливает nginx, become включен для этой операции, далее вызывается хендлер "Start nginx service".
+Он запустится после всех task.
+```
+- get zip & unarchive
+```text
+ansible.builtin.unarchive распаковывает архив, полученный напрямую из репозитория
+```
+- Copy lighthouse sources
+```text
+Копирует распакованные файлы в /usr/share/nginx/html - дефолтная директория для html nginx
+```
+-  Cleaning files
+```text
+Удаляет директорию, полученную после распаковки архива
+```
+Хендлеры:
+- Start nginx service
+```text
+Запускает сервис nginx (чтобы это было позволено, включаем become).
+```
