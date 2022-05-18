@@ -1,8 +1,9 @@
-#Домашнее задание к занятию "08.02 Работа с Playbook"
+#Домашнее задание к занятию "08.03 Использование Yandex Cloud"
 
-PLAYBOOK `site.yml` содержит 2 PLAY:
+PLAYBOOK `site.yml` содержит 3 PLAY:
  - 'Install Clickhouse'
  - 'Install Vector'
+ - 'Install Lighthouse'
 
 ###PLAY "Install Clickhouse"
 Таски:
