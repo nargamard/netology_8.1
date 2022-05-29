@@ -40,6 +40,17 @@ vector_version: "0.21.2"
   notify: Start vector service
 ```
 
-Хендлер
+Хендлер перезапускает `vector`
+```text
+---
+# handlers file for vector-role
+- name: Start vector service
+  become: true
+  ansible.builtin.service:
+    name: vector
+    state: restarted
+```
 
 ###Роль "clickhouse-role"
+Строчка `- include_tasks: install_nginx.yml` в `main.yml` вызывает таски для установки nginx
+После чего скачивается lighthouse и вызывается хендлер, перезапускающий nginx
