@@ -1,55 +1,45 @@
-#Домашнее задание к занятию "08.02 Работа с Playbook"
+#Домашнее задание к занятию "08.04 Работа с Roles"
 
-PLAYBOOK `site.yml` содержит 2 PLAY:
- - 'Install Clickhouse'
- - 'Install Vector'
+PLAYBOOK `site.yml` содержит 3 playbook:
+ - 'Install Clickhouse' (вызывает роль clickhouse на хосте clickhouse)
+ - 'Install Vector' (вызывает роль vector-role на хосте vector)
+ - 'Install Lighthouse' (вызывает роль clickhouse-role на хосте lighthouse)
 
-###PLAY "Install Clickhouse"
-Таски:
-- Get clickhouse distrib
+###Роль "clickhouse"
+Получена с помощью команды 'ansible-galaxy install -r -requirements.yml' 
+и вот такого файла requirements.yml:
 ```text
-Таск скачивает пакеты clickhouse с помочью get_url.
-С помощью with_items организован цикл, который перебирает элементы clickhouse_packages.
-clickhouse_packages указаны в clickhouse/vars.yml
-С помощью шаблона в url вставляется номер версии пакетов из переменной clickhouse_version в том же файле.
-dest показывает, как должен называться пакет и куда его положить после получения.
-Так как название одного из пакетов не укладывается в шаблон, использована конструкция rescue.
-Тот пакет, который не удастся получить будет получен через get_url, указанный после rescue.
-```
-- Install clickhouse packages
-```text
-Включаем become чтобы было можно устанавливать пакеты.
-Даём ansible.builtin.yum список пакетов для установки, где снова используется параметр clickhouse_version.
-После этого notify показывает, что надо вызвать хендлер "Start clickhouse service", который запустит сервис.
-```
-- Flash handlers
-```text
-flush_handlers вызывает хендлер сейчас, иначе он выполнится после всех TASK, а запущенный сервис нужен до выполнения следующего TASK.
-```
-- Create database
-```text
-ansible.builtin.command запускает команду "clickhouse-client -q 'create database logs;'", которая создаёт базу данных.
-```
-Хендлеры:
-```text
-"Start clickhouse service", запускает сервис clickhouse-server (чтобы это было позволено, включаем become).
+---
+  - src: git@github.com:AlexeySetevoi/ansible-clickhouse.git
+    scm: git
+    version: "1.11.0"
+    name: clickhouse
 ```
 
-###PLAY "Install vector"
-Таски:
-- Get vector distrib
+###Роль "vector-role"
+В defaults/main.yml указана версия:
 ```text
-Таск скачивает пакет vector с помочью get_url.
-В имени пакета используется шаблон, который берет номер версии пакета из параметра vector_version.
-Этот параметр задан в файле vector/vars.yml
+---
+# defaults file for vector-role
+vector_version: "0.21.2"
 ```
-- Install vector packages
+
+Таски вынесены в tasks/main.yml
 ```text
-Включаем become чтобы было можно устанавливать пакеты.
-Даём ansible.builtin.yum список пакетов для установки, где всего один пакет, в имени которого используется тот же параметр vector_version.
-После этого notify показывает, что надо вызвать хендлер "Start vector service", который запустит сервис.
+---
+# tasks file for vector-role
+- name: Get vector distrib
+  ansible.builtin.get_url:
+    url: "https://packages.timber.io/vector/{{ vector_version }}/vector-{{ vector_version }}-1.x86_64.rpm"
+    dest: "./vector-{{ vector_version }}-1.x86_64.rpm"
+- name: Install vector packages
+  become: true
+  ansible.builtin.yum:
+    name:
+      - vector-{{ vector_version }}-1.x86_64.rpm
+  notify: Start vector service
 ```
-Хендлеры:
-```text
-"Start vector service", запускает сервис vector (чтобы это было позволено, включаем become).
-```
+
+Хендлер
+
+###Роль "clickhouse-role"
